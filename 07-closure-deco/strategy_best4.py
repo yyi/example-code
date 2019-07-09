@@ -75,20 +75,44 @@ class Order:  # the Context
         fmt = '<Order total: {:.2f} due: {:.2f}>'
         return fmt.format(self.total(), self.due())
 
+
 # BEGIN STRATEGY_BEST4
 
-promos = []  # <1>
+# promos = []  # <1>
 
-def promotion(promo_func):  # <2>
-    promos.append(promo_func)
-    return promo_func
 
-@promotion  # <3>
+# def promotion(promo_func):  # <2>
+#     promos.append(promo_func)
+#     return promo_func
+
+from functools import wraps
+
+
+class Promotion:
+    def __init__(self):
+        if not hasattr(self.__class__, "promos"):
+            self.__class__.promos = []
+
+    def __call__(self, func, *args, **kwargs):
+        self.__class__.promos.append(func)
+
+        @wraps(func)
+        def _fun(*args):
+            return func(*args)
+        return _fun
+
+    @classmethod
+    def getPromos(cls):
+        return cls.promos
+
+
+@Promotion()  # <3>
 def fidelity(order):
     """5% discount for customers with 1000 or more fidelity points"""
     return order.total() * .05 if order.customer.fidelity >= 1000 else 0
 
-@promotion
+
+@Promotion()
 def bulk_item(order):
     """10% discount for each LineItem with 20 or more units"""
     discount = 0
@@ -97,7 +121,8 @@ def bulk_item(order):
             discount += item.total() * .1
     return discount
 
-@promotion
+
+@Promotion()
 def large_order(order):
     """7% discount for orders with 10 or more distinct items"""
     distinct_items = {item.product for item in order.cart}
@@ -105,9 +130,10 @@ def large_order(order):
         return order.total() * .07
     return 0
 
+
 def best_promo(order):  # <4>
     """Select best discount available
     """
-    return max(promo(order) for promo in promos)
+    return max(promo(order) for promo in Promotion.getPromos())
 
 # END STRATEGY_BEST4
