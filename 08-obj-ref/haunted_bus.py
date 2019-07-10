@@ -26,6 +26,8 @@ True
 ['__annotations__', '__call__', ..., '__defaults__', ...]
 >>> HauntedBus.__init__.__defaults__
 (['Carrie', 'Dave'],)
+>>> HauntedBus.__init__.__defaults__[0] is bus1.passengers
+False
 >>> HauntedBus.__init__.__defaults__[0] is bus2.passengers
 True
 
