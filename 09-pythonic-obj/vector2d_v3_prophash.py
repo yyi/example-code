@@ -93,6 +93,7 @@ Tests of hashing:
 from array import array
 import math
 
+
 # BEGIN VECTOR2D_V3_PROP
 class Vector2d:
     typecode = 'd'
@@ -113,7 +114,7 @@ class Vector2d:
         return (i for i in (self.x, self.y))  # <6>
 
     # remaining methods follow (omitted in book listing)
-# END VECTOR2D_V3_PROP
+    # END VECTOR2D_V3_PROP
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -123,16 +124,16 @@ class Vector2d:
         return str(tuple(self))
 
     def __bytes__(self):
-        return (bytes([ord(self.typecode)]) +
-                bytes(array(self.typecode, self)))
+        return bytes([ord(self.typecode)]) + bytes(array(self.typecode, self))
 
     def __eq__(self, other):
         return tuple(self) == tuple(other)
 
-# BEGIN VECTOR_V3_HASH
+    # BEGIN VECTOR_V3_HASH
     def __hash__(self):
         return hash(self.x) ^ hash(self.y)
-# END VECTOR_V3_HASH
+
+    # END VECTOR_V3_HASH
 
     def __abs__(self):
         return math.hypot(self.x, self.y)
